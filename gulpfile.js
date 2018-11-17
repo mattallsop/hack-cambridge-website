@@ -26,6 +26,7 @@ let prod = !!argv.prod || process.env.NODE_ENV == 'production';
 let assetPath = ['assets/**', '!assets/dist/**', '!assets/styles/**'];
 let serverTSPath = ['src/**/*.ts', '!src/js/client/**'];
 let clientTSPath = ['src/js/client/index.ts'];
+let viewsPath = 'views/**';
 let yamlPath = './src/resources/*.yml';
 let cssPath = 'assets/styles/**.css';
 let filesToRev = ['.css', '.html', '.icns', '.ico', '.jpg', '.js', '.png', '.svg'];
@@ -37,13 +38,13 @@ function onError(err) {
   process.exit(1);
 }
 
-function clean(cb) {
+function clean() {
   return del(['dist', 'assets/dist']);
 }
 
 // CSS
 
-function preprocessCSS(cb) {
+function preprocessCSS() {
   return src('assets/styles/all-stylesheets.css')
     .pipe(gulpIf(!prod, sourcemaps.init()))
     .pipe(concatCss('all-stylesheets.css'))
@@ -60,7 +61,8 @@ function copyYAML() {
   return src(yamlPath)
     .pipe(yamlValidate({ html: false }))
     .on('error', onError)
-    .pipe(dest('dist'));
+    .pipe(dest('dist'))
+    .pipe(bs.stream());
 }
 
 // TS
@@ -79,7 +81,8 @@ function compileServerTS() {
     .pipe(tsProject())
     .on('error', onError)
     .js
-    .pipe(dest('dist'));
+    .pipe(dest('dist'))
+    .pipe(bs.stream());
 }
 
 // JS
@@ -87,7 +90,8 @@ function compileServerTS() {
 function copyServerJS() {
   const paths = ['src/**/*.js', '!src/js/client/**'];
   return src(paths)
-    .pipe(dest('dist'));
+    .pipe(dest('dist'))
+    .pipe(bs.stream());
 }
 
 // Other assets
@@ -96,10 +100,10 @@ function copyAssets() {
   return src(assetPath)
     .pipe(dest('assets/dist'))
     .on('error', onError)
-    .pipe(bs.stream({ once: true }))
+    .pipe(bs.stream({ once: true }));
 }
 
-function revAssets(cb) {
+function revAssets() {
   setTimeout(_ => {
     return src('assets/dist/**')
       .pipe(revAll.revision({
@@ -108,36 +112,32 @@ function revAssets(cb) {
       .pipe(dest('assets/dist'))
       .pipe(revAll.manifestFile())
       .on('error', onError)
-  .pipe(dest('assets/dist'))
+      .pipe(dest('assets/dist'))
   }, 2000)
 }
 
-function build() {
+const buildServerSide = parallel(compileServerTS, copyServerJS, copyYAML);
+const buildClientSide = parallel(copyAssets, preprocessCSS, pack);
+
+const build = parallel(buildServerSide, buildClientSide);
+
+const buildAndServe = (_ => {
   if (prod) {
     return parallel(
-      series(
-        parallel(copyAssets, preprocessCSS, pack),
-        revAssets
-      ),
-      series(
-        parallel(compileServerTS, copyYAML, copyServerJS),
-        serve
-      )
+      series(buildClientSide, revAssets),
+      series(buildServerSide, serve)
     )
   } else {
     return parallel(
-      parallel(copyAssets, preprocessCSS, pack),
-      series(
-        parallel(compileServerTS, copyYAML, copyServerJS),
-        serve
-      )
+      buildClientSide,
+      series(buildServerSide, serve)
     )
   }
-};
+})();
 
 watch(serverTSPath, series(compileServerTS, copyServerJS));
 watch(cssPath, preprocessCSS);
-watch(['views/**', 'src/resources/**'], bs.reload);
+watch(viewsPath, bs.reload);
 watch(assetPath, copyAssets);
 watch(yamlPath, copyYAML);
 
@@ -169,4 +169,6 @@ function serve(cb) {
   cb();
 }
 
-exports.default = series(clean, build());
+exports.build = series(clean, build);
+exports.serve = series(clean, buildAndServe);
+exports.default = series(clean, buildAndServe);

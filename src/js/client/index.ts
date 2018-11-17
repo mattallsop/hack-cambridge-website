@@ -1,6 +1,5 @@
 import { Application } from 'stimulus'
-import FieldValidatorController from './controllers/field-validator-controller'
-import ValidationMessagesController from './controllers/validation-messages-controller'
+import { definitionsFromContext } from 'stimulus/webpack-helpers'
 import * as $ from 'jquery';
 
 import * as live from './live';
@@ -14,5 +13,5 @@ $(document).ready(() => {
 });
 
 const application = Application.start();
-application.register('field-validator', FieldValidatorController);
-application.register('validation-messages', ValidationMessagesController);
+const context = require.context('./controllers', true, /\.js$/)
+application.load(definitionsFromContext(context))

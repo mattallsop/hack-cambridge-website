@@ -1,5 +1,5 @@
-import * as dates from 'js/shared/dates';
-import * as moment from 'moment';
+import { getHackingPeriodStart, getHackingPeriodEnd } from './dates';
+import { duration, Duration } from 'moment';
 
 export class Countdown {
   constructor(options) {
@@ -74,7 +74,7 @@ export class Countdown {
     let now = new Date();
     let nowTime = now.getTime();
 
-    this.difference = moment.duration(this.deadlineTime - nowTime);
+    this.difference = duration(this.deadlineTime - nowTime);
 
     // Check for countdown chaining
     if ((this.nextCountdown) && (this.done)) {
@@ -107,15 +107,15 @@ export class Countdown {
 
   public onCount: (renderedText: string) => void;
 
-  private difference: moment.Duration;
+  private difference: Duration;
   private deadlineTime: number;
   private nextCountdown: Countdown;
-  private renderFunc: (difference: moment.Duration) => string;
+  private renderFunc: (difference: Duration) => string;
   private precision: number;
   private timer: number;
 
-  private static hackathonStart: Date = dates.getHackingPeriodStart().toDate();
-  private static hackathonEnd: Date = dates.getHackingPeriodEnd().toDate();
+  private static hackathonStart: Date = getHackingPeriodStart().toDate();
+  private static hackathonEnd: Date = getHackingPeriodEnd().toDate();
 }
 
 function padZero(num) {

@@ -3,13 +3,11 @@
 const gulp = require('gulp');
 const argv = require('yargs').argv;
 const path = require('path');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
 const del = require('del');
-const browserify = require('browserify');
 const sequence = require('run-sequence');
 const bs = require('browser-sync').create();
 const nodemon = require('nodemon');
+const webpack = require('webpack-stream');
 
 const autoprefixer = require('autoprefixer');
 const concatCss = require('gulp-concat-css');
@@ -17,7 +15,6 @@ const gulpIf = require('gulp-if');
 const postcss = require('gulp-postcss');
 const revAll = require('gulp-rev-all');
 const sourcemaps = require('gulp-sourcemaps');
-const terser = require('gulp-terser');
 const ts = require('gulp-typescript');
 const util = require('gulp-util');
 const validateYaml = require('gulp-yaml-validate');
@@ -60,39 +57,24 @@ gulp.task('validate-yaml', () =>
 
 // JS
 
-gulp.task('browserify', () => {
-  let gulpBrowserify = function (fileIn, fileOut) {
-    return browserify({
-      entries: fileIn,
-      debug: !prod,
-      paths: [path.dirname(fileIn), './dist']
-    })
-      .transform('babelify', { presets: ['es2015'] })
-      .bundle()
-      .on('error', onError)
-      .pipe(source(fileOut))
-      .pipe(buffer());
-  };
-
-  return gulpBrowserify('./dist/js/client/main.js', 'main.js')
-    .pipe(gulpIf(!prod, sourcemaps.init({ loadMaps: true })))
-    .pipe(gulpIf(prod, terser()))
-    .pipe(gulpIf(!prod, sourcemaps.write()))
-    .pipe(gulp.dest('assets/dist/scripts'))
-    .on('error', onError)
+gulp.task('pack', () => {
+  return gulp.src('src/js/client/index.ts')
+    .pipe(webpack(require('./webpack.config.js')))
+    .pipe(gulp.dest('assets/dist/scripts/'))
     .pipe(bs.stream());
 });
 
 gulp.task('compile-typescript', () => {
   const tsProject = ts.createProject('tsconfig.json');
-  return tsProject.src()
+  const paths = ['src/**/*.ts', '!src/js/client/**'];
+  return gulp.src(paths)
     .pipe(tsProject())
     .on('error', onError)
     .js.pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy-source', () => {
-  const paths = ['src/**', '!src/**/*.ts'];
+  const paths = ['src/**', '!src/**/*.ts', '!src/js/client/**'];
   return gulp.src(paths)
     .pipe(gulp.dest('dist'));
 });
@@ -122,7 +104,7 @@ gulp.task('wait', (cb) =>
 );
 
 gulp.task('build', (cb) => {
-  let args = ['clean', 'copy-assets', 'compile-typescript', 'copy-source', 'browserify', 'preprocess-css', 'validate-yaml'];
+  let args = ['clean', 'copy-assets', 'compile-typescript', 'copy-source', 'pack', 'preprocess-css', 'validate-yaml'];
 
   if (prod) {
     // HACK: Waiting for a little bit means all of the assets actually get rev'd
@@ -136,7 +118,7 @@ gulp.task('build', (cb) => {
 });
 
 gulp.task('watch', ['build'], () => {
-  gulp.watch(['src/js/**'], ['compile-typescript', 'copy-source', 'browserify']);
+  gulp.watch(['src/js/**'], ['compile-typescript', 'copy-source', 'pack']);
   gulp.watch('assets/styles/**.css', ['preprocess-css']);
   gulp.watch(['views/**', 'src/resources/**'], bs.reload);
   gulp.watch(assetPath, ['copy-assets']);

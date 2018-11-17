@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import * as Pusher from 'pusher-js';
 import * as moment from 'moment';
 
-import { Countdown } from 'js/shared/countdown';
+import { Countdown } from '../shared/countdown';
 
 // Add globals for Pusher config
 declare global {

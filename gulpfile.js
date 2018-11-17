@@ -1,6 +1,6 @@
 'use strict';
 
-const gulp = require('gulp');
+const { series, parallel, src, dest, watch } = require('gulp');
 const argv = require('yargs').argv;
 const path = require('path');
 const del = require('del');
@@ -17,114 +17,131 @@ const revAll = require('gulp-rev-all');
 const sourcemaps = require('gulp-sourcemaps');
 const ts = require('gulp-typescript');
 const util = require('gulp-util');
-const validateYaml = require('gulp-yaml-validate');
+const yamlValidate = require('gulp-yaml-validate');
+
+const webpackConfig = require('./webpack.config.js');
 
 let prod = !!argv.prod || process.env.NODE_ENV == 'production';
 
 let assetPath = ['assets/**', '!assets/dist/**', '!assets/styles/**'];
+let serverTSPath = ['src/**/*.ts', '!src/js/client/**'];
+let clientTSPath = ['src/js/client/index.ts'];
+let yamlPath = './src/resources/*.yml';
+let cssPath = 'assets/styles/**.css';
+let filesToRev = ['.css', '.html', '.icns', '.ico', '.jpg', '.js', '.png', '.svg'];
 
 function onError(err) {
   util.beep();
-  console.log(err);
+  console.log(err.message);
   this.emit('end');
   process.exit(1);
 }
 
-gulp.task('clean', () =>
-  del(['dist', 'assets/dist'])
-);
+function clean(cb) {
+  return del(['dist', 'assets/dist']);
+}
 
 // CSS
 
-gulp.task('preprocess-css', () =>
-  gulp.src('assets/styles/all-stylesheets.css')
+function preprocessCSS(cb) {
+  return src('assets/styles/all-stylesheets.css')
     .pipe(gulpIf(!prod, sourcemaps.init()))
     .pipe(concatCss('all-stylesheets.css'))
     .pipe(postcss([ autoprefixer() ]))
     .pipe(gulpIf(!prod, sourcemaps.write()))
-    .pipe(gulp.dest('assets/dist/styles'))
+    .pipe(dest('assets/dist/styles'))
     .on('error', onError)
     .pipe(bs.stream())
-);
+}
 
 // YAML
 
-gulp.task('validate-yaml', () =>
-  gulp.src('./src/resources/*.yml')
-    .pipe(validateYaml({ html: false }))
+function copyYAML() {
+  return src(yamlPath)
+    .pipe(yamlValidate({ html: false }))
     .on('error', onError)
-);
+    .pipe(dest('dist'));
+}
+
+// TS
+
+function pack() {
+  webpackConfig['mode'] = prod ? 'production' : 'development';
+  return src(clientTSPath)
+    .pipe(webpack(webpackConfig))
+    .pipe(dest('assets/dist/scripts/'))
+    .pipe(bs.stream());
+}
+
+function compileServerTS() {
+  const tsProject = ts.createProject('tsconfig.json');
+  return src(serverTSPath)
+    .pipe(tsProject())
+    .on('error', onError)
+    .js
+    .pipe(dest('dist'));
+}
 
 // JS
 
-gulp.task('pack', () => {
-  return gulp.src('src/js/client/index.ts')
-    .pipe(webpack(require('./webpack.config.js')))
-    .pipe(gulp.dest('assets/dist/scripts/'))
-    .pipe(bs.stream());
-});
-
-gulp.task('compile-typescript', () => {
-  const tsProject = ts.createProject('tsconfig.json');
-  const paths = ['src/**/*.ts', '!src/js/client/**'];
-  return gulp.src(paths)
-    .pipe(tsProject())
-    .on('error', onError)
-    .js.pipe(gulp.dest('dist'));
-});
-
-gulp.task('copy-source', () => {
-  const paths = ['src/**', '!src/**/*.ts', '!src/js/client/**'];
-  return gulp.src(paths)
-    .pipe(gulp.dest('dist'));
-});
+function copyServerJS() {
+  const paths = ['src/**/*.js', '!src/js/client/**'];
+  return src(paths)
+    .pipe(dest('dist'));
+}
 
 // Other assets
 
-gulp.task('copy-assets', () =>
-  gulp.src(assetPath)
-    .pipe(gulp.dest('assets/dist'))
+function copyAssets() {
+  return src(assetPath)
+    .pipe(dest('assets/dist'))
     .on('error', onError)
     .pipe(bs.stream({ once: true }))
-);
+}
 
-gulp.task('rev-assets', () =>
-  gulp.src('assets/dist/**')
-    .pipe(revAll.revision({
-      includeFilesInManifest: ['.css', '.html', '.icns', '.ico', '.jpg', '.js', '.png', '.svg']
-    }))
-    .pipe(gulp.dest('assets/dist'))
-    .pipe(revAll.manifestFile())
-    .on('error', onError)
-    .pipe(gulp.dest('assets/dist'))
-);
+function revAssets(cb) {
+  setTimeout(_ => {
+    return src('assets/dist/**')
+      .pipe(revAll.revision({
+        includeFilesInManifest: filesToRev
+      }))
+      .pipe(dest('assets/dist'))
+      .pipe(revAll.manifestFile())
+      .on('error', onError)
+  .pipe(dest('assets/dist'))
+  }, 2000)
+}
 
-gulp.task('wait', (cb) =>
-  setTimeout(cb, 2000)
-);
-
-gulp.task('build', (cb) => {
-  let args = ['clean', 'copy-assets', 'compile-typescript', 'copy-source', 'pack', 'preprocess-css', 'validate-yaml'];
-
+function build() {
   if (prod) {
-    // HACK: Waiting for a little bit means all of the assets actually get rev'd
-    args.push('wait');
-    args.push('rev-assets');
+    return parallel(
+      series(
+        parallel(copyAssets, preprocessCSS, pack),
+        revAssets
+      ),
+      series(
+        parallel(compileServerTS, copyYAML, copyServerJS),
+        serve
+      )
+    )
+  } else {
+    return parallel(
+      parallel(copyAssets, preprocessCSS, pack),
+      series(
+        parallel(compileServerTS, copyYAML, copyServerJS),
+        serve
+      )
+    )
   }
+};
 
-  args.push(cb);
+watch(serverTSPath, series(compileServerTS, copyServerJS));
+watch(cssPath, preprocessCSS);
+watch(['views/**', 'src/resources/**'], bs.reload);
+watch(assetPath, copyAssets);
+watch(yamlPath, copyYAML);
 
-  sequence.apply(null, args);
-});
-
-gulp.task('watch', ['build'], () => {
-  gulp.watch(['src/js/**'], ['compile-typescript', 'copy-source', 'pack']);
-  gulp.watch('assets/styles/**.css', ['preprocess-css']);
-  gulp.watch(['views/**', 'src/resources/**'], bs.reload);
-  gulp.watch(assetPath, ['copy-assets']);
-});
-
-gulp.task('serve', ['watch'], () => {
+function serve(cb) {
   let runnode = function (env = {}) {
     nodemon({
       script: 'dist/index.js',
@@ -135,7 +152,6 @@ gulp.task('serve', ['watch'], () => {
       }, env),
     });
   };
-
   if (!argv.nobs) {
     bs.init({
       port: 8000,
@@ -150,4 +166,7 @@ gulp.task('serve', ['watch'], () => {
       NODE_PATH: `${process.env.NODE_PATH}:./src`,
     });
   }
-});
+  cb();
+}
+
+exports.default = series(clean, build());

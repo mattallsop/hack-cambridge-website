@@ -68,7 +68,7 @@
     "express-validator": "^5.3.0",
     "geodist": "^0.2.1",
     "google-spreadsheet": "^2.0.4",
-    "gulp": "*",
+    "gulp": "^4.0.0",
     "gulp-concat-css": "^3.1.0",
     "gulp-if": "^2.0.0",
     "gulp-plumber": "^1.0.1",

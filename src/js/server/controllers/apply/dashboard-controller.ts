@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 
 import { UserRequest } from 'js/server/routes/apply-router';
-import * as utils from 'js/server/utils.js';
+import * as utils from 'js/server/utils';
 import { Hacker, TeamMember, HackerInstance } from 'js/server/models';
 import * as statusConstants from 'js/shared/status-constants';
 import { getHackathonStartDate, getHackathonEndDate } from 'js/shared/dates';
@@ -45,10 +45,6 @@ export const showDashboard: RequestHandler = async (req: UserRequest, res) => {
     application,
     statuses,
     statusMessages,
-    //applicationInfo: content['your-application'][applicationStatuses.applicationStatus],
-    //teamApplicationInfo: content['team-application'][applicationStatuses.teamApplicationStatus],
-    //rsvpInfo: content['rsvp'][applicationStatuses.rsvpStatus],
-    //statusMessage: content['status-messages'][applicationStatuses.overallStatus],
     teamMembers,
 
     applicationsOpenStatus: process.env.APPLICATIONS_OPEN_STATUS,

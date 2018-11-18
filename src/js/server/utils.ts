@@ -3,7 +3,6 @@ import { Express } from 'express';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
-import * as markdown_module from 'markdown-it';
 import * as moment from 'moment-timezone';
 import * as path from 'path';
 import { render as renderEjs } from 'ejs'; 
@@ -11,16 +10,10 @@ import { render as renderEjs } from 'ejs';
 import * as dates from 'js/shared/dates';
 import * as theme from 'js/shared/theme';
 
-const markdown = markdown_module({
-  html: true,
-  linkify: true,
-  typographer: true
-}).use(require('markdown-it-attrs'));
-
 const loadedResources = {};
 let app: Express;
 
-const PROJECT_ROOT = path.resolve(path.join(__dirname, '../../../'));
+const PROJECT_ROOT = path.resolve(path.join(__dirname, '..'));
 
 function timeProperties(items, properties) {
   items.forEach((item) => properties.forEach((prop) => item[prop] = moment.tz(item[prop], 'Europe/London')));
@@ -34,10 +27,10 @@ export function resolvePath(fromProjectRoot) {
   return path.join(PROJECT_ROOT, fromProjectRoot);
 }
 
-let assetsFile;
+let assetsFile = {};
 
 try {
-  assetsFile = require(resolvePath('./assets/dist/rev-manifest.json'));
+  assetsFile = require(resolvePath('assets/dist/rev-manifest.json'));
 } catch (e) {
   assetsFile = { };
 }
@@ -71,11 +64,10 @@ export function loadResource(resourceName) {
   if ((!loadedResources[resourceName]) || app === undefined || app.settings.env === 'development') {
     let loadedResource = yaml.safeLoad(
       renderEjs(
-        fs.readFileSync(resolvePath(`src/resources/${resourceName}.yml`)).toString(),
+        fs.readFileSync(resolvePath(`dist/${require(`resources/${resourceName}.yml`)}`)).toString(),
         { dates: dates, theme: theme }
       )
     )[resourceName];
-
     switch (resourceName) {
       case 'workshops':
       case 'api_demos':

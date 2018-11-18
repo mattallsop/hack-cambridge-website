@@ -51,7 +51,7 @@ if (app.settings.env != 'development') {
   staticOptions.maxAge = 60 * 60 * 365 * 1000;
 }
 app.use(compression());
-app.use('/assets', express.static(resolveAssetPath('assets/dist'), staticOptions));
+app.use('/assets', express.static('assets/dist', staticOptions));
 
 setUpAuth(app);
 app.use(appliableConcern.setAppliedStatus);

@@ -12,7 +12,7 @@ html
     meta(property='og:url' content=requestedUrl.href)
     meta(property='og:description' content=description)
     meta(property='og:image' content=requestedUrl.protocol + '/' + requestedUrl.host + asset('images/fb-share.png'))
-    link(rel='stylesheet' type='text/css' href=asset('styles/all-stylesheets.css'))
+    link(rel='preload' href='main.js' as='script')
     block extraStyles
     link(rel='stylesheet' type='text/css' href='https://hackcambridgeassets.s3.amazonaws.com/fonts/PxGrotesk/PxGroteskRegular-Regular.css')
     link(rel='stylesheet' type='text/css' href='https://hackcambridgeassets.s3.amazonaws.com/fonts/PxGrotesk/PxGroteskScreen-Regular.css')
@@ -35,7 +35,7 @@ html
     !=browserSync
   block content
   block scripts
-  script(type='text/javascript' src=asset('scripts/main.js'))
+  script(type='text/javascript' src=asset('scripts/bundle.js'))
   // Facebook Pixel Code
   script.
     ! function(f, b, e, v, n, t, s) {

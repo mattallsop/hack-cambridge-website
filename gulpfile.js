@@ -24,11 +24,7 @@ const webpackConfig = require('./webpack.config.js');
 let prod = !!argv.prod || process.env.NODE_ENV == 'production';
 
 let assetPath = ['assets/**', '!assets/dist/**', '!assets/styles/**'];
-let serverTSPath = ['src/**/*.ts', '!src/js/client/**'];
-let clientTSPath = ['src/js/client/index.ts'];
 let viewsPath = 'views/**';
-let yamlPath = './src/resources/*.yml';
-let cssPath = 'assets/styles/**.css';
 let filesToRev = ['.css', '.html', '.icns', '.ico', '.jpg', '.js', '.png', '.svg'];
 
 function onError(err) {
@@ -42,54 +38,18 @@ function clean() {
   return del(['dist', 'assets/dist']);
 }
 
-// CSS
-
-function preprocessCSS() {
-  return src('assets/styles/all-stylesheets.css')
-    .pipe(gulpIf(!prod, sourcemaps.init()))
-    .pipe(concatCss('all-stylesheets.css'))
-    .pipe(postcss([ autoprefixer() ]))
-    .pipe(gulpIf(!prod, sourcemaps.write()))
-    .pipe(dest('assets/dist/styles'))
-    .on('error', onError)
-    .pipe(bs.stream())
-}
-
-// YAML
-
-function copyYAML() {
-  return src(yamlPath)
-    .pipe(yamlValidate({ html: false }))
-    .on('error', onError)
-    .pipe(dest('dist'))
-    .pipe(bs.stream());
-}
-
 // TS
 
-function pack() {
-  webpackConfig['mode'] = prod ? 'production' : 'development';
-  return src(clientTSPath)
-    .pipe(webpack(webpackConfig))
+function packClientSide() {
+  webpackConfig[0]['mode'] = prod ? 'production' : 'development';
+  return webpack(webpackConfig[0])
     .pipe(dest('assets/dist/scripts/'))
     .pipe(bs.stream());
 }
 
-function compileServerTS() {
-  const tsProject = ts.createProject('tsconfig.json');
-  return src(serverTSPath)
-    .pipe(tsProject())
-    .on('error', onError)
-    .js
-    .pipe(dest('dist'))
-    .pipe(bs.stream());
-}
-
-// JS
-
-function copyServerJS() {
-  const paths = ['src/**/*.js', '!src/js/client/**'];
-  return src(paths)
+function packServerSide() {
+  webpackConfig[1]['mode'] = prod ? 'production' : 'development';
+  return webpack(webpackConfig[1])
     .pipe(dest('dist'))
     .pipe(bs.stream());
 }
@@ -97,6 +57,7 @@ function copyServerJS() {
 // Other assets
 
 function copyAssets() {
+  webpackConfig[1]['mode'] = prod ? 'production' : 'development';
   return src(assetPath)
     .pipe(dest('assets/dist'))
     .on('error', onError)
@@ -116,30 +77,26 @@ function revAssets() {
   }, 2000)
 }
 
-const buildServerSide = parallel(compileServerTS, copyServerJS, copyYAML);
-const buildClientSide = parallel(copyAssets, preprocessCSS, pack);
+const buildClientSide = parallel(copyAssets, packClientSide);
 
-const build = parallel(buildServerSide, buildClientSide);
+const build = parallel(packServerSide, buildClientSide);
 
 const buildAndServe = (_ => {
   if (prod) {
     return parallel(
       series(buildClientSide, revAssets),
-      series(buildServerSide, serve)
+      series(packServerSide, serve)
     )
   } else {
     return parallel(
       buildClientSide,
-      series(buildServerSide, serve)
+      series(packServerSide, serve)
     )
   }
 })();
 
-watch(serverTSPath, series(compileServerTS, copyServerJS));
-watch(cssPath, preprocessCSS);
 watch(viewsPath, bs.reload);
 watch(assetPath, copyAssets);
-watch(yamlPath, copyYAML);
 
 function serve(cb) {
   let runnode = function (env = {}) {

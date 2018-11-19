@@ -5,7 +5,7 @@ block content
   - keywords = 'hack,Cambridge,ternary,sponsorship,hackathon'
   - layoutMode = 'a4'
   header(layout=layoutMode grid='grid' rows='2.5')
-    img(columns='3.0' draggable='false' src=asset('images/logo.svg') alt='Hack Cambridge Logo')
+    img(columns='3.0' draggable='false' src=require('images/logo.svg') alt='Hack Cambridge Logo')
     div(columns='5.5' grid='rows')
       h1#wordmark(rows='0.5') Hack Cambridge
       div
@@ -13,7 +13,7 @@ block content
         p And we want you to join us too.
   main(layout=layoutMode)
     section(color='blue' grid='grid')
-      img(columns='3.0' draggable='false' src=asset('images/university-of-cambridge-logo.svg') alt='University of Cambridge Logo')
+      img(columns='3.0' draggable='false' src=require('images/university-of-cambridge-logo.svg') alt='University of Cambridge Logo')
       div(grid='columns' columns='5.5')
         p(columns='3.0') The University of Cambridge endorses Hack Cambridge.
     section(grid='rows')

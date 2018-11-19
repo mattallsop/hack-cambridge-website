@@ -1,25 +1,18 @@
 'use strict';
 
-const { series, parallel, src, dest, watch } = require('gulp');
+const { series, parallel, dest, watch } = require('gulp');
 const argv = require('yargs').argv;
 const path = require('path');
-const del = require('del');
-const sequence = require('run-sequence');
 const bs = require('browser-sync').create();
 const nodemon = require('nodemon');
 const webpack = require('webpack-stream');
-
-const gulpIf = require('gulp-if');
-const revAll = require('gulp-rev-all');
 const util = require('gulp-util');
 
 const webpackConfig = require('./webpack.config.js');
 
 let prod = !!argv.prod || process.env.NODE_ENV == 'production';
 
-let assetPath = ['assets/**', '!assets/dist/**', '!assets/styles/**'];
 let viewsPath = 'views/**';
-let filesToRev = ['.css', '.html', '.icns', '.ico', '.jpg', '.js', '.png', '.svg'];
 
 function onError(err) {
   util.beep();
@@ -28,16 +21,12 @@ function onError(err) {
   process.exit(1);
 }
 
-function clean() {
-  return del(['dist', 'assets/dist']);
-}
-
 // TS
 
 function packClientSide() {
   webpackConfig[0]['mode'] = prod ? 'production' : 'development';
   return webpack(webpackConfig[0])
-    .pipe(dest('assets/dist/scripts/'))
+    .pipe(dest('dist/assets/scripts/'))
     .pipe(bs.stream());
 }
 
@@ -48,48 +37,9 @@ function packServerSide() {
     .pipe(bs.stream());
 }
 
-// Other assets
-
-function copyAssets() {
-  return src(assetPath)
-    .pipe(dest('assets/dist'))
-    .on('error', onError)
-    .pipe(bs.stream({ once: true }));
-}
-
-function revAssets() {
-  setTimeout(_ => {
-    return src('assets/dist/**')
-      .pipe(revAll.revision({
-        includeFilesInManifest: filesToRev
-      }))
-      .pipe(dest('assets/dist'))
-      .pipe(revAll.manifestFile())
-      .on('error', onError)
-      .pipe(dest('assets/dist'))
-  }, 2000)
-}
-
-const buildClientSide = parallel(copyAssets, packClientSide);
-
-const build = parallel(packServerSide, buildClientSide);
-
-const buildAndServe = (_ => {
-  if (prod) {
-    return parallel(
-      series(buildClientSide, revAssets),
-      series(packServerSide, serve)
-    )
-  } else {
-    return parallel(
-      buildClientSide,
-      series(packServerSide, serve)
-    )
-  }
-})();
+const build = parallel(packServerSide, packClientSide);
 
 watch(viewsPath, bs.reload);
-watch(assetPath, copyAssets);
 
 function serve(cb) {
   let runnode = function (env = {}) {
@@ -119,6 +69,6 @@ function serve(cb) {
   cb();
 }
 
-exports.build = series(clean, build);
-exports.serve = series(clean, buildAndServe);
-exports.default = series(clean, buildAndServe);
+exports.build = build;
+exports.serve = series(build, serve);
+exports.default = series(build, serve);

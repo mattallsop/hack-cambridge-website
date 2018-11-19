@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = [{
   entry: [
@@ -12,7 +13,7 @@ module.exports = [{
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'assets/dist/scripts'),
+    path: path.resolve(__dirname, 'dist/assets/scripts'),
   },
   module: {
     rules: [
@@ -51,6 +52,9 @@ module.exports = [{
       'node_modules'
     ]
   },
+  plugins: [
+    new CleanWebpackPlugin(['dist'], { verbose: false }),
+  ],
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
@@ -58,6 +62,9 @@ module.exports = [{
   target: 'node',
   node: {
     __dirname: false,
+  },
+  devServer: {
+    contentBase: path.join(__dirname, 'public')
   },
   externals: [nodeExternals()],
   module: {
@@ -83,10 +90,15 @@ module.exports = [{
         exclude: /node_modules/
       },
       {
-        test: /\.(png|svg|jpg|gif|ico)$/,
-        use: [
-          'file-loader'
-        ]
+        test: /\.(png|jpg|gif|ico|svg)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[hash].[ext]',
+            outputPath: 'assets',
+            publicPath: '/assets'
+          }
+        }
       },
       {
         test: /\.yml$/,
@@ -101,8 +113,6 @@ module.exports = [{
           'pug-loader'
         ],
       },
-        ]
-      }
     ],
   },
 }];

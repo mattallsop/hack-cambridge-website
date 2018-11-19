@@ -1,13 +1,13 @@
 {
-    "name": "HC Ternary",
+    "name": "HC 4D",
     "icons": [
         {
-            "src": "{{ asset('images/favicons/android-chrome-192x192.png') }}",
+            "src": "{{ require('images/favicons/android-chrome-192x192.png') }}",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "{{ asset('images/favicons/android-chrome-512x512.png') }}",
+            "src": "{{ require('images/favicons/android-chrome-512x512.png') }}",
             "sizes": "512x512",
             "type": "image/png"
         }

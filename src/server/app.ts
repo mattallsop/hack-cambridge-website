@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { urlencoded as parseUrlEncoded } from 'body-parser';
 import { ServeStaticOptions } from 'serve-static';
 import * as compression from 'compression';
+import { relative as relativePath } from 'path';
 
 import { router, apiRouter, applyRouter, eventRouter, hcApiRouter } from './routes';
 import { applicationsMiddleware } from 'server/middleware';
@@ -65,7 +66,7 @@ if (app.settings.env != 'development') {
   staticOptions.maxAge = 60 * 60 * 365 * 1000;
 }
 app.use(compression());
-app.use('/assets', express.static('assets/dist', staticOptions));
+app.use('/assets', express.static('dist/assets', staticOptions));
 
 setUpAuth(app);
 app.use(applicationsMiddleware.setAppliedStatus);

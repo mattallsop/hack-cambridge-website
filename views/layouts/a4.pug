@@ -2,7 +2,8 @@ extends base
 block content
   - layoutMode = 'a4'
   include ../mixins/svg-elements
-  include ../includes/header
+  header(color=headerColor layout=layoutMode grid='grid' rows='2.5')
+    include ../includes/header
   main(layout=layoutMode)
     section(color='blue' align-last='right' grid='grid' rows='0.5' columns='2.0')
       div(rows='1.0')

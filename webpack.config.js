@@ -4,7 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = [{
   entry: [
-    './src/js/client/index.ts',
+    './src/client/index.ts',
     './assets/styles/all-stylesheets.css',
   ],
   resolve: {

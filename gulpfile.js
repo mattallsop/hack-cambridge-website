@@ -57,7 +57,6 @@ function packServerSide() {
 // Other assets
 
 function copyAssets() {
-  webpackConfig[1]['mode'] = prod ? 'production' : 'development';
   return src(assetPath)
     .pipe(dest('assets/dist'))
     .on('error', onError)

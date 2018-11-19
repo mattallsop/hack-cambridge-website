@@ -9,15 +9,9 @@ const bs = require('browser-sync').create();
 const nodemon = require('nodemon');
 const webpack = require('webpack-stream');
 
-const autoprefixer = require('autoprefixer');
-const concatCss = require('gulp-concat-css');
 const gulpIf = require('gulp-if');
-const postcss = require('gulp-postcss');
 const revAll = require('gulp-rev-all');
-const sourcemaps = require('gulp-sourcemaps');
-const ts = require('gulp-typescript');
 const util = require('gulp-util');
-const yamlValidate = require('gulp-yaml-validate');
 
 const webpackConfig = require('./webpack.config.js');
 

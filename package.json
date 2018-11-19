@@ -67,6 +67,7 @@
     "del": "^3.0.0",
     "dotenv": "^4.0.0",
     "ejs": "^2.6.1",
+    "ejs-loader": "^0.3.1",
     "express": "^4.13.3",
     "express-session": "^1.14.2",
     "express-validator": "^5.3.0",
@@ -121,6 +122,7 @@
     "webpack-cli": "^3.1.2",
     "webpack-node-externals": "^1.7.2",
     "webpack-stream": "^5.1.1",
+    "yaml-loader": "^0.5.0",
     "yargs": "^9.0.1"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import * as path from 'path';
-import { render as renderEjs } from 'ejs'; 
+import { render as renderEJS } from 'ejs'; 
 
 import * as dates from 'shared/dates';
 import * as theme from 'shared/theme';
@@ -62,18 +62,14 @@ function loadScheduleTimeProperties(loadedScheduleResource) {
 
 export function loadResource(resourceName) {
   if ((!loadedResources[resourceName]) || app === undefined || app.settings.env === 'development') {
-    let loadedResource = yaml.safeLoad(
-      renderEjs(
-        fs.readFileSync(resolvePath(`dist/${require(`../../assets/resources/${resourceName}.yml`)}`)).toString(),
-        { dates: dates, theme: theme }
-      )
-    )[resourceName];
+    let templateFunction = require(`../../assets/resources/${resourceName}.yml`);
+    let json = JSON.parse(templateFunction({ dates: dates, theme: theme }))[resourceName];
     switch (resourceName) {
       case 'workshops':
       case 'api_demos':
-        timeProperties(loadedResource, ['time']);
+        timeProperties(json, ['time']);
 
-        loadedResource = loadedResource.sort((r1, r2) => {
+        json = json.sort((r1, r2) => {
           let time1 = r1.time;
           let time2 = r2.time;
 
@@ -89,13 +85,13 @@ export function loadResource(resourceName) {
         });
         break;
       case 'schedule':
-        loadScheduleTimeProperties(loadedResource);
+        loadScheduleTimeProperties(json);
         break;
       case 'dashboard':
       case 'faqs':
     }
 
-    loadedResources[resourceName] = loadedResource;
+    loadedResources[resourceName] = json;
   }
 
   return loadedResources[resourceName];

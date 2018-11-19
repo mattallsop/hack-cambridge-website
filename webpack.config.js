@@ -1,5 +1,6 @@
 const path = require('path');
 const glob = require('glob');
+const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
 module.exports = [{
@@ -54,6 +55,11 @@ module.exports = [{
   node: {
     __dirname: false,
   },
+  plugins: [
+    new webpack.ProvidePlugin({
+        _: 'lodash',
+    })
+  ],
   externals: [nodeExternals()],
   module: {
     rules: [
@@ -78,13 +84,20 @@ module.exports = [{
         exclude: /node_modules/
       },
       {
-        test: /\.(png|svg|jpg|gif|yml)$/,
+        test: /\.(png|svg|jpg|gif)$/,
         use: [
           'file-loader'
         ]
-      }
-    ]
-  }
+      },
+      {
+        test: /\.yml$/,
+        use: [
+          'ejs-loader',
+          'yaml-loader',
+        ],
+      },
+    ],
+  },
 }, {
   entry: glob.sync("./assets/images/**/*"),
   output: {

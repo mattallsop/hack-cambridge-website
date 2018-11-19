@@ -20,6 +20,20 @@ import * as theme from 'shared/theme';
 const app = express();
 let server = require('http').Server(app);
 
+const viewContext = require.context('../../views', true, /\.pug$/);
+
+function renderFile(filePath, options, callback) {
+  const templateFunction = viewContext(`./${relativePath('./views', filePath)}`);
+  try {
+    const renderedTemplate = templateFunction(options);
+    return callback(null, renderedTemplate);
+  } catch(err) {
+    return callback(err);
+  }
+}
+
+app.engine('pug', renderFile);
+
 app.set('view engine', 'pug');
 // Start server
 app.set('port', (process.env.PORT || 3000));

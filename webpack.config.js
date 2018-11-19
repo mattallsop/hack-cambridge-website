@@ -1,12 +1,11 @@
 const path = require('path');
-const glob = require('glob');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
 module.exports = [{
   entry: [
-    './src/client/index.ts',
     './assets/styles/all-stylesheets.css',
+    './src/client/index.ts',
   ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
@@ -45,7 +44,12 @@ module.exports = [{
   entry: './src/index.ts',
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
-    modules: [path.resolve(__dirname, 'src'), 'node_modules']
+    modules: [
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'views'),
+      path.resolve(__dirname, 'assets'),
+      'node_modules'
+    ]
   },
   output: {
     filename: 'index.js',
@@ -79,7 +83,7 @@ module.exports = [{
         exclude: /node_modules/
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|svg|jpg|gif|ico)$/,
         use: [
           'file-loader'
         ]
@@ -91,21 +95,14 @@ module.exports = [{
           'yaml-loader',
         ],
       },
-    ],
-  },
-}, {
-  entry: glob.sync("./assets/images/**/*"),
-  output: {
-    path: path.resolve(__dirname, 'assets/dist/images'),
-  },
-  module: {
-    rules: [
       {
-        test: /\.(png|svg|jpg|gif|ico)$/,
+        test: /\.pug$/,
         use: [
-          'file-loader'
+          'pug-loader'
+        ],
+      },
         ]
       }
-    ]
-  }
+    ],
+  },
 }];

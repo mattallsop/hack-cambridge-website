@@ -55,11 +55,6 @@ module.exports = [{
   node: {
     __dirname: false,
   },
-  plugins: [
-    new webpack.ProvidePlugin({
-        _: 'lodash',
-    })
-  ],
   externals: [nodeExternals()],
   module: {
     rules: [
@@ -92,7 +87,7 @@ module.exports = [{
       {
         test: /\.yml$/,
         use: [
-          'ejs-loader',
+          'ejs-compiled-loader',
           'yaml-loader',
         ],
       },

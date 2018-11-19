@@ -67,7 +67,7 @@
     "del": "^3.0.0",
     "dotenv": "^4.0.0",
     "ejs": "^2.6.1",
-    "ejs-loader": "^0.3.1",
+    "ejs-compiled-loader": "^1.1.0",
     "express": "^4.13.3",
     "express-session": "^1.14.2",
     "express-validator": "^5.3.0",

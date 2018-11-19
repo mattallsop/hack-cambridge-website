@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 
-import { hackerApplicationsController, teamsController, rsvpsController, dashboardController } from 'server/controllers/apply/index';
-import { appliableConcern } from 'server/controllers/apply/concerns/index';
+import { hackerApplicationsController, teamsController, rsvpsController, dashboardController } from 'server/controllers/apply';
+import { applicationsMiddleware } from 'server/middleware';
 import { requireAuth, logout } from 'server/auth';
 import { HackerInstance } from 'server/models';
 
@@ -9,7 +9,7 @@ const applyRouter = Router();
 
 export interface UserRequest extends Request {
   user: HackerInstance;
-};
+}
 
 applyRouter.get('/', (req: UserRequest, res) => {
   req.user ? res.redirect('dashboard') : res.redirect('login');
@@ -24,12 +24,12 @@ applyRouter.get('/logout', logout, (req: UserRequest, res) => res.redirect('/'))
 applyRouter.get('/dashboard', requireAuth, dashboardController.showDashboard);
 
 applyRouter.route('/form')
-  .all(appliableConcern.goBackIfApplied, appliableConcern.goBackIfApplicationsClosed)
+  .all(applicationsMiddleware.goBackIfApplied, applicationsMiddleware.goBackIfApplicationsClosed)
   .get(hackerApplicationsController.newHackerApplication)
   .post(hackerApplicationsController.createHackerApplication);
 
 applyRouter.route('/team')
-  .all(appliableConcern.goBackIfApplicationsClosed)
+  .all(applicationsMiddleware.goBackIfApplicationsClosed)
   .get(teamsController.newTeam)
   .post(teamsController.createTeam);
 

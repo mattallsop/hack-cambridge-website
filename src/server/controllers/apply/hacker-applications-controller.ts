@@ -3,7 +3,7 @@ import { NextFunction, Response } from 'express';
 import { RequestHandlerParams } from 'express-serve-static-core';
 import { checkSchema, validationResult, ValidationSchema } from 'express-validator/check';
 import * as validator from 'validator';
-import countryList from 'country-list';
+import { getData as getCountryData } from 'country-list';
 
 import { UserRequest } from 'server/routes/apply-router';
 import { s3Upload } from 'server/apply/file-upload';
@@ -23,7 +23,7 @@ function createCountryChoices(): { [id: string]: string }  {
   // Add United Kingdom to the top of the country choices since it is the most likely to be applicable.
   
   choices['GB'] = 'United Kingdom';
-  countryList().getData().forEach(({ code, name }) => {
+  getCountryData().forEach(({ code, name }) => {
     choices[code] = name;
   });
   return choices;

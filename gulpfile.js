@@ -6,7 +6,7 @@ const path = require('path');
 const bs = require('browser-sync').create();
 const nodemon = require('nodemon');
 const webpack = require('webpack-stream');
-const util = require('gulp-util');
+const beeper = require('beeper');
 
 const webpackConfig = require('./webpack.config.js');
 
@@ -15,7 +15,7 @@ let prod = !!argv.prod || process.env.NODE_ENV == 'production';
 let viewsPath = 'views/**';
 
 function onError(err) {
-  util.beep();
+  beeper();
   console.log(err.message);
   this.emit('end');
   process.exit(1);

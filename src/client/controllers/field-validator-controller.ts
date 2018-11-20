@@ -4,11 +4,11 @@ export default class FieldValidatorController extends Controller {
   /**
    * Form fields
    */
-  fieldTargets: [HTMLInputElement];
+  static targets = ['field']
 
-  static get targets() {
-    return ['field']
-  }
+  readonly fieldTarget!: HTMLSelectElement
+  readonly fieldTargets!: HTMLSelectElement[]
+  readonly hasFieldTargets!: boolean
   
   connect() {
     if (this.data.has('error')) {

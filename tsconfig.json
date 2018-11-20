@@ -3,7 +3,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "baseUrl": "src",
-    "target": "es2016",
+    "target": "ESNext",
     "strict": false
   }
 }

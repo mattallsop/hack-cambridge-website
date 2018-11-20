@@ -111,6 +111,21 @@ module.exports = [{
           'pug-loader'
         ],
       },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[hash].[ext]',
+              outputPath: 'assets',
+              publicPath: '/assets'
+            },
+          },
+          'extract-loader',
+          'css-loader',
+        ]
+      }
     ],
   },
-}];
+};

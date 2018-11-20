@@ -23,15 +23,17 @@ function onError(err) {
 
 // TS
 
-function packClientSide() {
+async function packClientSide(cb) {
   webpackConfig[0]['mode'] = prod ? 'production' : 'development';
+  webpackConfig[0]['watch'] = prod ? 'false' : 'true';
   return webpack(webpackConfig[0])
     .pipe(dest('dist/assets/scripts/'))
     .pipe(bs.stream());
 }
 
-function packServerSide() {
+async function packServerSide(cb) {
   webpackConfig[1]['mode'] = prod ? 'production' : 'development';
+  webpackConfig[1]['watch'] = prod ? 'false' : 'true';
   return webpack(webpackConfig[1])
     .pipe(dest('dist'))
     .pipe(bs.stream());

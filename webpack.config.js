@@ -16,20 +16,16 @@ module.exports = [{
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-typescript']
-          }
-        },
-        exclude: /node_modules/
-      },
         use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-typescript'],
+            }
+          },
+          'ts-loader',
+        ],
+        exclude: /node_modules/
       }
     ]
   }

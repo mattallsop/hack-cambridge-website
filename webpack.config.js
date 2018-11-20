@@ -8,6 +8,9 @@ module.exports = [{
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
+  plugins: [
+   new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/])
+  ],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist/assets/scripts'),
@@ -42,6 +45,7 @@ module.exports = [{
   },
   plugins: [
     new CleanWebpackPlugin(['dist'], { verbose: false }),
+    new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/])
   ],
   output: {
     filename: 'index.js',

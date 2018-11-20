@@ -4,10 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = [{
-  entry: [
-    './assets/styles/all-stylesheets.css',
-    './src/client/index.ts',
-  ],
+  entry: './src/client/index.ts',
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
@@ -32,12 +29,7 @@ module.exports = [{
         },
         exclude: /node_modules/
       },
-      {
-        test: /\.css$/,
         use: [
-          'style-loader',
-          'css-loader'
-        ]
       }
     ]
   }

@@ -71,22 +71,20 @@ module.exports = [{
     rules: [
       {
         test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-typescript']
+            }
+          },
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true
+            }
           }
-        },
-        exclude: /node_modules/
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-typescript']
-          }
-        },
+        ],
         exclude: /node_modules/
       },
       {

@@ -9,7 +9,6 @@ const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 module.exports = [
   {
     name: 'clientside',
-    watch: process.env.NODE_ENV === 'development' ? true : false,
     mode: process.env.NODE_ENV,
     entry: './src/client/index.ts',
     resolve: {

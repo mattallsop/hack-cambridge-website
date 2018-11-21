@@ -5,6 +5,7 @@ const nodeExternals = require('webpack-node-externals');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 module.exports = [
   {
@@ -129,7 +130,20 @@ module.exports = [
               },
             },
             'extract-loader',
-            'css-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 1
+              },
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                plugins: loader => [
+                  autoprefixer()
+                ],
+              },
+            },
           ],
         },
       ],

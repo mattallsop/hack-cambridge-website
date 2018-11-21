@@ -34,8 +34,7 @@ html
     meta(name='application-name' content=`HC ${event.theme.getEventName()}`)
     meta(name='msapplication-config' content='/favicons/browserconfig.xml')
     meta(name='theme-color' content='#ffffff')
-  if browserSync
-    != browserSync
+    script#browsersync-snippet
   block content
   block scripts
   // Facebook Pixel Code

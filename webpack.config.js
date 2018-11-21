@@ -1,11 +1,15 @@
+require('dotenv').config();
 const path = require('path');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const NodemonPlugin = require('nodemon-webpack-plugin');
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 
 module.exports = [
   {
     name: 'clientside',
+    mode: process.env.NODE_ENV,
     entry: './src/client/index.ts',
     resolve: {
       extensions: [ '.tsx', '.ts', '.js' ],
@@ -34,8 +38,10 @@ module.exports = [
         },
       ],
     },
+    stats: 'minimal',
   }, {
     name: 'serverside',
+    mode: process.env.NODE_ENV,
     entry: './src/index.ts',
     resolve: {
       extensions: [ '.tsx', '.ts', '.js' ],
@@ -49,6 +55,27 @@ module.exports = [
     plugins: [
       new CleanWebpackPlugin(['dist'], { verbose: false }),
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
+      new NodemonPlugin({
+        script: path.resolve(__dirname, 'dist/index.js'),
+        watch: path.resolve(__dirname, 'dist'),
+        quiet: true
+      }),
+      new BrowserSyncPlugin({
+        port: 8000,
+        proxy: 'localhost:3000',
+        logLevel: 'none',
+        logFileChanges: false,
+        logConnections: false,
+        ui: false,
+        reloadDelay: 1500,
+        reloadOnRestart: true,
+        snippetOptions: {
+          rule: {
+            match: /<script id=['"]browsersync-snippet['"]><\/script>/,
+            fn: (snippet, match) => { return snippet }
+          }
+        }
+      }),
     ],
     output: {
       filename: 'index.js',
@@ -123,5 +150,6 @@ module.exports = [
         },
       ],
     },
+    stats: 'minimal',
   },
 ]

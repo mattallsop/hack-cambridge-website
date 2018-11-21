@@ -1,5 +1,2 @@
-import * as dotenv from 'dotenv';
-
-dotenv.load();
-
+require('dotenv').config();
 require('server/app');

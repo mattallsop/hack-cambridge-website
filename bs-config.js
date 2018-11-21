@@ -10,7 +10,7 @@ module.exports = {
     "reloadDelay": 1000,
     "socket": {
         "clients": {
-            "heartbeatTimeout": 10000
+            "heartbeatTimeout": 20000
         }
     },
     "snippetOptions": {

@@ -1,6 +1,6 @@
 {
   "verbose": false,
   "events": {
-    "start": "browser-sync reload"
+    "restart": "browser-sync reload"
   }
 }

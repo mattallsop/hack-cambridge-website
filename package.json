@@ -6,7 +6,7 @@
     "test": "./node_modules/mocha/bin/mocha",
     "start": "export NODE_PATH=$NODE_PATH:./dist; node dist/index",
     "postinstall": "webpack",
-    "watch": "webpack --watch --progress --info-verbosity none",
+    "watch": "webpack --progress --info-verbosity none",
     "build": "webpack",
     "migrate": "sequelize db:migrate",
     "sequelize": "sequelize",

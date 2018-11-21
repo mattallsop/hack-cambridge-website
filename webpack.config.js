@@ -15,6 +15,7 @@ module.exports = [
     resolve: {
       extensions: [ '.tsx', '.ts', '.js' ],
     },
+    devtool: process.env.NODE_ENV === 'development' ? 'inline-source-map' : false,
     plugins: [
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
     ],

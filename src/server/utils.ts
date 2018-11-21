@@ -1,11 +1,8 @@
 import * as crypto from 'crypto';
 import { Express } from 'express';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import * as path from 'path';
-import { render as renderEJS } from 'ejs'; 
 
 import * as dates from 'shared/dates';
 import * as theme from 'shared/theme';

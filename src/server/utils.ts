@@ -24,13 +24,7 @@ export function resolvePath(fromProjectRoot) {
   return path.join(PROJECT_ROOT, fromProjectRoot);
 }
 
-let assetsFile = {};
-
-try {
-  assetsFile = require(resolvePath('assets/dist/rev-manifest.json'));
-} catch (e) {
-  assetsFile = { };
-}
+const assetsFile = require(resolvePath('assets/dist/rev-manifest.json')) || { };
 
 export function asset(asset, prefix) {
   if (prefix == null) {

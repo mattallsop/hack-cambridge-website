@@ -69,7 +69,6 @@
     "file-loader": "^2.0.0",
     "geodist": "^0.2.1",
     "google-spreadsheet": "^2.0.4",
-    "gulp-if": "^2.0.0",
     "jquery": "^3.2.1",
     "mailchimp-api": "^2.0.7",
     "mailgen": "^2.0.6",

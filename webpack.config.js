@@ -56,26 +56,10 @@ module.exports = [
       new CleanWebpackPlugin(['dist'], { verbose: false }),
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
       new NodemonPlugin({
-        script: path.resolve(__dirname, 'dist/index.js'),
         watch: path.resolve(__dirname, 'dist'),
-        quiet: true
+        script: path.resolve(__dirname, 'dist/index.js')
       }),
-      new BrowserSyncPlugin({
-        port: 8000,
-        proxy: 'localhost:3000',
-        logLevel: 'none',
-        logFileChanges: false,
-        logConnections: false,
-        ui: false,
-        reloadDelay: 1500,
-        reloadOnRestart: true,
-        snippetOptions: {
-          rule: {
-            match: /<script id=['"]browsersync-snippet['"]><\/script>/,
-            fn: (snippet, match) => { return snippet }
-          }
-        }
-      }),
+      new BrowserSyncPlugin(require(path.resolve(__dirname, 'bs-config.js'))),
     ],
     output: {
       filename: 'index.js',

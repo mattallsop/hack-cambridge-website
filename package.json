@@ -8,7 +8,6 @@
     "postinstall": "webpack",
     "watch": "webpack --watch --progress --info-verbosity none",
     "build": "webpack",
-    
     "migrate": "sequelize db:migrate",
     "sequelize": "sequelize",
     "hc-script": "export NODE_PATH=$NODE_PATH:./dist; node ./dist/hc-scripts/index"
@@ -53,8 +52,6 @@
     "aws-sdk": "^2.6.15",
     "babel-loader": "^8.0.4",
     "body-parser": "^1.15.2",
-    "browser-sync": "^2.26.3",
-    "browser-sync-webpack-plugin": "^2.2.2",
     "chalk": "^2.4.1",
     "client-sessions": "^0.8.0",
     "compression": "^1.6.1",
@@ -107,6 +104,8 @@
     "yaml-loader": "^0.5.0"
   },
   "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "browser-sync-webpack-plugin": "^2.2.2",
     "clean-webpack-plugin": "^1.0.0",
     "mocha": "^4.0.1",
     "nodemon-webpack-plugin": "^4.0.3",

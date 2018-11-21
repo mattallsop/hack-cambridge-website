@@ -117,7 +117,6 @@ async function deriveOverallStatus() {
   else if (rsvpStatus == statuses.rsvp.COMPLETE_YES)
     return statuses.overall.INVITED_ACCEPTED;
   else {
-    console.log('Couldn\'t derive an overall status');
     console.log({
       applicationStatus,
       responseStatus,
@@ -129,23 +128,24 @@ async function deriveOverallStatus() {
   }
 };
 
+interface HackerStatuses {
+  applicationStatus: string;
+  teamApplicationStatus: string;
+  responseStatus: string;
+  rsvpStatus: string;
+  ticketStatus: string;
+  overallStatus: string;
+}
+
 async function getStatuses() {
-  const statuses = {};
-  [ 
-    statuses['applicationStatus'],
-    statuses['teamApplicationStatus'],
-    statuses['responseStatus'],
-    statuses['rsvpStatus'],
-    statuses['ticketStatus'],
-    statuses['overallStatus']
-  ] = await Promise.all([
-    this.getApplicationStatus(),
-    this.getTeamApplicationStatus(),
-    this.getResponseStatus(),
-    this.getRsvpStatus(),
-    this.getTicketStatus(),
-    this.deriveOverallStatus(),
-  ]);
+  const statuses: HackerStatuses = {
+    applicationStatus: await this.getApplicationStatus(),
+    teamApplicationStatus: await this.getTeamApplicationStatus(),
+    responseStatus: await this.getResponseStatus(),
+    rsvpStatus: await this.getRsvpStatus(),
+    ticketStatus: await this.getTicketStatus(),
+    overallStatus: await this.deriveOverallStatus()
+  };
   return statuses;
 }
 
@@ -253,12 +253,12 @@ const Hacker: Hacker = db.define<HackerInstance, HackerAttributes>('hacker', att
   tableName: 'hackers',
   instanceMethods: {
     // Add the instance methods
+    getStatuses,
+    getApplicationStatus,
     getTeamApplicationStatus,
     getResponseStatus,
-    getApplicationStatus,
     getRsvpStatus,
     getTicketStatus,
-    getStatuses,
     deriveOverallStatus,
     log(logText) {
       console.log(`[User ${this.id}] ${logText}`);
